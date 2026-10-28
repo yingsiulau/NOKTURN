@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Archivo+Narrow:wght@400;500;600&family=STIX+Two+Text:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
 <style>
-/* Layout: nachtschwarzer Zine — Chrome-Blackletter links, drehende Deep-Dish-Felge rechts, darunter Drop-Grid, Manifest mit Sigil-Zeichnung, IG-Wall */
+/* Layout: nachtschwarzer Zine — Chrome-Blackletter links, drehende Deep-Dish-Felge rechts, darunter Drop-Grid, Manifest mit 3D-Turbolader, IG-Wall */
 :root{
   --ink:#070608;        /* Asphalt bei Nacht */
   --soot:#121014;       /* Russ / Panels */
@@ -115,9 +115,8 @@ select{font-family:var(--f-data);font-size:12px;background:var(--ink);color:var(
 /* manifest */
 .mani{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:center}
 @media (max-width:820px){.mani{grid-template-columns:1fr}}
-.sigil{aspect-ratio:1/1;max-width:440px;width:100%;justify-self:center}
-.sigil img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 1px #000) drop-shadow(0 0 24px rgba(255,143,196,.28));animation:bob 6s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-10px) rotate(-1.5deg)}}
+.turbo{aspect-ratio:1/1;max-width:460px;width:100%;justify-self:center;touch-action:pan-y}
+.turbo canvas{display:block;width:100%!important;height:100%!important}
 .rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;counter-reset:r;min-width:0}
 .rules li{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:16px 0;border-bottom:1px dashed var(--scar)}
 .rules li::before{counter-increment:r;content:"§" counter(r);font-family:var(--f-data);color:var(--peep);font-size:13px;padding-top:6px}
@@ -150,7 +149,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 .tot{display:flex;justify-content:space-between;font-family:var(--f-data);font-size:16px;padding-block:12px;border-top:1px dashed var(--scar);font-variant-numeric:tabular-nums}
 .note{font-family:var(--f-data);font-size:12px;color:var(--peep);margin:8px 0 0}
 
-@media (prefers-reduced-motion:reduce){.tape-in,.sigil img{animation:none}.item{transform:none!important}}
+@media (prefers-reduced-motion:reduce){.tape-in{animation:none}.item{transform:none!important}}
 </style>
 
 <div class="grain" aria-hidden="true"></div>
@@ -200,7 +199,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 
   <section id="garage">
     <div class="wrap mani">
-      <div class="sigil"><img src="sigil-sticker.png" alt="Nokturn Sigil: Zeichnung" width="486" height="810"></div>
+      <div class="turbo" id="turbo" role="img" aria-label="Rotierender Chrome-Turbolader"></div>
       <div style="min-width:0">
         <div class="sh"><h2 class="chrome-text">Garage Rules</h2><p data-t="rulesSub"></p></div>
         <ol class="rules">
@@ -501,6 +500,77 @@ const P2=(rr,t)=>new THREE.Vector2(rr*Math.cos(t),rr*Math.sin(t));
   requestAnimationFrame(loop);
 })();
 
+/* Chrome-Turbolader */
+(function(){
+  const el=$('turbo'), r=makeRenderer(el), scene=new THREE.Scene();
+  scene.environment=makeEnv(r);
+  const cam=new THREE.PerspectiveCamera(32,1,.1,50); cam.position.set(0,0,8);
+  fit(el,r,cam);
+  scene.add(new THREE.AmbientLight(0xffffff,.25));
+  const pl=new THREE.PointLight(0xff8fc4,3,14); pl.position.set(-3,-2,4); scene.add(pl);
+  const chrome=new THREE.MeshStandardMaterial({color:0xffffff,metalness:1,roughness:.07});
+  const cast=new THREE.MeshStandardMaterial({color:0x8d8892,metalness:1,roughness:.42});
+  const dark=new THREE.MeshStandardMaterial({color:0x2a262c,metalness:.6,roughness:.5});
+  const turbo=new THREE.Group();
+
+  // Schnecke: Spirale im Uhrzeigersinn mit wachsendem Rohrquerschnitt, endet oben und läuft gerade nach rechts aus
+  function volute(R0,R1,r0,r1,turn,out,mat){
+    const pts=[], N=48;
+    for(let i=0;i<=N;i++){const u=i/N,a=Math.PI/2+turn*(1-u),R=R0+(R1-R0)*u;pts.push(new THREE.Vector3(Math.cos(a)*R,Math.sin(a)*R,0))}
+    const end=pts[N], dir=end.clone().sub(pts[N-1]).normalize();
+    for(let i=1;i<=6;i++) pts.push(end.clone().addScaledVector(dir,out*i/6));
+    const path=new THREE.CatmullRomCurve3(pts), seg=120, rad=24;
+    const geo=new THREE.TubeGeometry(path,seg,1,rad,false), pos=geo.attributes.position, v=new THREE.Vector3();
+    const spiralLen=path.getLength()-out;
+    // TubeGeometry baut Ringe entlang getPointAt(i/seg): jeden Ring vom Zentrum aus auf den gewünschten Radius skalieren
+    for(let i=0;i<=seg;i++){
+      const c=path.getPointAt(i/seg), d=i/seg*path.getLength(), rr=d<spiralLen?r0+(r1-r0)*d/spiralLen:r1;
+      for(let j=0;j<=rad;j++){const k=i*(rad+1)+j;v.fromBufferAttribute(pos,k).sub(c).multiplyScalar(rr).add(c);pos.setXYZ(k,v.x,v.y,v.z)}
+    }
+    geo.computeVertexNormals();
+    return {mesh:new THREE.Mesh(geo,mat),end:path.getPointAt(1),dir,r:r1};
+  }
+
+  // Verdichterseite (Chrome)
+  const comp=volute(1.02,1.28,.16,.62,1.9*Math.PI,1.05,chrome); turbo.add(comp.mesh);
+  const flange=new THREE.Mesh(new THREE.TorusGeometry(comp.r+.04,.07,14,48),chrome);
+  flange.position.copy(comp.end); flange.lookAt(comp.end.clone().add(comp.dir)); turbo.add(flange);
+  const lip=new THREE.Mesh(new THREE.CylinderGeometry(comp.r+.1,comp.r+.1,.12,48,1,true),chrome);
+  lip.position.copy(comp.end).addScaledVector(comp.dir,-.08); lip.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),comp.dir); turbo.add(lip);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.6,64),chrome); body.rotation.x=Math.PI/2; turbo.add(body);
+  // Einlass mit gebördelter Lippe
+  const inlet=new THREE.Mesh(new THREE.LatheGeometry([
+    new THREE.Vector2(.66,-.2),new THREE.Vector2(.66,.5),new THREE.Vector2(.7,.62),new THREE.Vector2(.82,.66),
+    new THREE.Vector2(.93,.6),new THREE.Vector2(.95,.48),new THREE.Vector2(.9,.36),new THREE.Vector2(.86,0)],64),chrome);
+  inlet.rotation.x=Math.PI/2; inlet.position.z=.2; turbo.add(inlet);
+  inlet.material=chrome.clone(); inlet.material.side=THREE.DoubleSide;
+  const well=new THREE.Mesh(new THREE.CircleGeometry(.67,48),dark); well.position.z=.3; turbo.add(well);
+  // Verdichterrad: Nabe, 7 Hauptschaufeln + 7 Splitter, Mutter
+  const wheel=new THREE.Group(); wheel.position.z=.32; turbo.add(wheel);
+  const hub=new THREE.Mesh(new THREE.LatheGeometry([new THREE.Vector2(.001,.42),new THREE.Vector2(.08,.41),new THREE.Vector2(.13,.3),new THREE.Vector2(.3,.08),new THREE.Vector2(.52,0)],48),chrome);
+  hub.rotation.x=Math.PI/2; wheel.add(hub);
+  for(let i=0;i<14;i++){
+    const full=i%2===0, len=full?.52:.34, b=new THREE.Mesh(new THREE.BoxGeometry(.03,len,full?.38:.22),chrome);
+    const piv=new THREE.Group(); piv.rotation.z=i/14*Math.PI*2; wheel.add(piv);
+    b.position.set(0,.64-len/2,full?.16:.1); b.rotation.y=.55; b.rotation.x=-.25; piv.add(b);
+  }
+  const nut=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.1,6),chrome); nut.rotation.x=Math.PI/2; nut.position.z=.46; wheel.add(nut);
+  // Lagergehäuse + Turbinenseite (Guss), Fussflansch
+  const core=new THREE.Mesh(new THREE.CylinderGeometry(.62,.7,.6,40),cast); core.rotation.x=Math.PI/2; core.position.z=-.6; turbo.add(core);
+  const turb=volute(.95,1.05,.22,.46,1.55*Math.PI,.35,cast); turb.mesh.rotation.y=Math.PI; turb.mesh.position.z=-1.15; turbo.add(turb.mesh);
+  const tbody=new THREE.Mesh(new THREE.CylinderGeometry(1.08,1.08,.55,48),cast); tbody.rotation.x=Math.PI/2; tbody.position.z=-1.15; turbo.add(tbody);
+  const foot=new THREE.Mesh(new THREE.BoxGeometry(.95,.14,.85),cast); foot.position.set(-.55,-1.62,-1.15); turbo.add(foot);
+  const neck=new THREE.Mesh(new THREE.BoxGeometry(.7,.5,.6),cast); neck.position.set(-.5,-1.35,-1.15); turbo.add(neck);
+
+  turbo.scale.setScalar(.85); turbo.position.set(-.25,-.1,0);
+  const g=new THREE.Group(); g.add(turbo); scene.add(g);
+  let run=true; visible(el,v=>run=v);
+  function loop(t){requestAnimationFrame(loop);if(!run)return;
+    wheel.rotation.z-=reduce?.01:.09;
+    g.rotation.y=reduce?.45:.45+Math.sin(t*.0005)*.55; g.rotation.x=reduce?-.1:-.1+Math.sin(t*.0007)*.08;
+    r.render(scene,cam)}
+  requestAnimationFrame(loop);
+})();
 </script>
 
 </body></html>
