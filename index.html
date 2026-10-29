@@ -581,12 +581,10 @@ const P2=(rr,t)=>new THREE.Vector2(rr*Math.cos(t),rr*Math.sin(t));
     b.position.set(0,.64-len/2,full?.16:.1); b.rotation.y=.55; b.rotation.x=-.25; piv.add(b);
   }
   const nut=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.1,6),chrome); nut.rotation.x=Math.PI/2; nut.position.z=.46; wheel.add(nut);
-  // Lagergehäuse + Turbinenseite (Guss), Fussflansch
+  // Lagergehäuse + Turbinenseite (Guss)
   const core=new THREE.Mesh(new THREE.CylinderGeometry(.62,.7,.6,40),cast); core.rotation.x=Math.PI/2; core.position.z=-.6; turbo.add(core);
   const turb=volute(.95,1.05,.22,.46,1.55*Math.PI,.35,cast); turb.mesh.rotation.y=Math.PI; turb.mesh.position.z=-1.15; turbo.add(turb.mesh);
   const tbody=new THREE.Mesh(new THREE.CylinderGeometry(1.08,1.08,.55,48),cast); tbody.rotation.x=Math.PI/2; tbody.position.z=-1.15; turbo.add(tbody);
-  const foot=new THREE.Mesh(new THREE.BoxGeometry(.95,.14,.85),cast); foot.position.set(-.55,-1.62,-1.15); turbo.add(foot);
-  const neck=new THREE.Mesh(new THREE.BoxGeometry(.7,.5,.6),cast); neck.position.set(-.5,-1.35,-1.15); turbo.add(neck);
 
   turbo.scale.setScalar(.85); turbo.position.set(-.25,-.1,0);
   const g=new THREE.Group(); g.add(turbo); scene.add(g);
