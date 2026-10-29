@@ -100,8 +100,12 @@ h2{font-family:var(--f-bio);font-weight:400;text-transform:uppercase;letter-spac
 .item:nth-child(3n+2){transform:rotate(.6deg)} .item:nth-child(3n){transform:rotate(-.5deg)}
 .art{aspect-ratio:5/4;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#221c22,var(--soot) 70%);border-bottom:1px solid var(--scar);position:relative;overflow:hidden}
 .art svg{width:56%;height:auto;overflow:visible}
-.art .no{position:absolute;top:10px;left:12px;font-family:var(--f-data);font-size:11px;color:var(--ash);letter-spacing:.1em}
-.badge{position:absolute;top:10px;right:-30px;transform:rotate(35deg);background:var(--peep);color:var(--ink);font-family:var(--f-data);font-size:10px;letter-spacing:.14em;padding:3px 34px;text-transform:uppercase}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.etsy{font-family:var(--f-data);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--peep);text-decoration:none;align-self:flex-start}
+.etsy:hover{text-decoration:underline}
+.note a{color:inherit}
+.art .no{z-index:1;position:absolute;top:10px;left:12px;font-family:var(--f-data);font-size:11px;color:var(--ash);letter-spacing:.1em}
+.badge{z-index:1;position:absolute;top:10px;right:-30px;transform:rotate(35deg);background:var(--peep);color:var(--ink);font-family:var(--f-data);font-size:10px;letter-spacing:.14em;padding:3px 34px;text-transform:uppercase}
 .body{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1}
 .body h3{font-family:var(--f-bio);font-weight:500;text-transform:uppercase;letter-spacing:.03em;font-size:23px;line-height:1.1;margin:0}
 .body p{margin:0;color:var(--ash);font-size:14px}
@@ -256,55 +260,54 @@ const SG='<i class="sg" aria-hidden="true"></i>';
 
 /* ---------- products ---------- */
 const ART={
-  hoodie:'<path d="M35 18Q50 2 65 18L72 20 88 36 84 70 76 70 74 44 74 92 26 92 26 44 24 70 16 70 12 36 28 20Z"/><path d="M38 72H62L59 84H41Z"/><path d="M44 22 46 40M56 22 54 40" stroke="var(--peep)"/>',
-  tee:'<path d="M30 15 42 12Q50 20 58 12L70 15 88 30 80 42 72 37 72 90 28 90 28 37 20 42 12 30Z"/><text x="50" y="58" text-anchor="middle" font-family="Pirata One" font-size="13" fill="var(--peep)" stroke="none">NKT</text>',
-  sigil:'<image href="sigil-sticker.png" x="20" y="0" width="60" height="100"/>',
-  decal:'<rect x="8" y="34" width="84" height="32" rx="4" transform="rotate(-6 50 50)"/><text x="50" y="56" text-anchor="middle" font-family="Pirata One" font-size="18" fill="var(--chrome)" stroke="none" transform="rotate(-6 50 50)">Drift Tax</text>',
-  beanie:'<path d="M22 70Q22 26 50 26Q78 26 78 70Z"/><rect x="18" y="66" width="64" height="16"/><circle cx="50" cy="19" r="7" stroke="var(--peep)"/><path d="M28 74H72" stroke-dasharray="3 3"/>',
-  fresh:'<path d="M50 4V22" stroke="var(--peep)"/><circle cx="50" cy="56" r="34"/><circle cx="50" cy="56" r="9"/><path d="M50 47V24M58 52 80 44M55 63 69 83M45 63 31 83M42 52 20 44"/>'
+  tee:'<path d="M30 15 42 12Q50 20 58 12L70 15 88 30 80 42 72 37 72 90 28 90 28 37 20 42 12 30Z"/><text x="50" y="58" text-anchor="middle" font-family="Pirata One" font-size="13" fill="var(--peep)" stroke="none">NKT</text>'
 };
 const T={
 de:{cart:'Cart',eye:SG+' Night Drift Club · Est. auf dem Parkplatz',tag:'Kein Grip. Kein Plan. <em>Nur Rauch</em> und Chrome um 3 Uhr nachts.',toDrop:'Zum Drop',
- dropSub:'Limitiert · Versand CH/EU · Preise in CHF',rulesSub:'Gelesen. Ignoriert. Befolgt.',
+ dropSub:'Auf Bestellung gefertigt · Preise in CHF',rulesSub:'Gelesen. Ignoriert. Befolgt.',
  r1:'Seitwärts ist vorwärts.',r1b:'Wer gerade fährt, hat das Lenkrad nicht verstanden.',r2:'Reifen sind Verbrauchsmaterial.',r2b:'Wie Herzen. Gekauft, verbrannt, nachgekauft.',
  r3:'Destroy to rebuild.',r3b:'Kaputt machen, neu aufbauen, weiterfahren. Muss nicht schön sein, muss laufen.',r4:'Nur auf abgesperrter Strecke.',r4b:'Trackdays, Events, Privatgelände. Die Strasse gehört nicht dir.',
  igEye:'Clips, Treffen, nächste Drops',igH:'Folg dem Rauch',igBtn:'Auf Instagram öffnen',copy:'© 2026 Nokturn · Schweiz',legal:'Impressum · AGB · Datenschutz',
- close:'Schliessen',checkout:'Zur Kasse',note:'Checkout ist noch nicht angeschlossen. Hier kommt Shopify, Stripe oder Twint rein.',
+ close:'Schliessen',checkout:'Zur Kasse',note:'Checkout ist noch nicht angeschlossen. Bis dahin gibt’s alles auf <a href="https://www.etsy.com/shop/NOKTURNofficial" target="_blank" rel="noopener">Etsy</a>.',
  add:'In den Cart',added:'Drin '+SG,empty:'Noch leer. Wie der Tank nach dem Event.',variant:'Variante',less:'Weniger',more:'Mehr',new:'Neu',low:'Fast weg',
- hood:'Heavyweight 450 g/m², boxy fit, Sigil-Print auf dem Rücken.',tee:'Acid washed black, oversized. Logo klein vorne, gross hinten.',key:'Zinkdruckguss, hochglanzverchromt. Fürs Zündschloss.',
- decal:'30 cm, Folie geplottet. Heckscheibe oder Windschutz-Banner.',beanie:'Rippstrick mit Bommel, gestickte Sigils.',fresh:'Felgenform. Riecht nach Kirsche und verbranntem Gummi.',
- 'One size':'Einheitsgrösse',White:'Weiss',Pink:'Pink',Chrome:'Chrome','3-pack':'3er Pack'},
+ plugH:'Damit kannst du dich auf dem Boden wälzen und problemlos den Ölstand checken. Oversized Tee im Vintage-Look, 100 % Baumwolle.',
+ plugS:'Zum Bier trinken auf der Terrasse. Boxy Tee, 100 % gekämmte Baumwolle.',goth:'Nur für die Hübschen. Oversized Tee im Vintage-Look, 100 % Baumwolle.',
+ t13b:'Nostalgiacore Midnight Club. Boxy Tee, 100 % gekämmte Baumwolle.',rotary:'Für Leute mit psychischen Problemen. Boxy Tee, 100 % Baumwolle.',
+ hot:'Beliebt',etsy:'Auf Etsy ansehen ↗'},
 en:{cart:'Cart',eye:SG+' Night Drift Club · Est. in the parking lot',tag:'No grip. No plan. <em>Just smoke</em> and chrome at 3 a.m.',toDrop:'Shop the drop',
- dropSub:'Limited · Shipping CH/EU · Prices in CHF',rulesSub:'Read. Ignored. Obeyed.',
+ dropSub:'Made to order · Prices in CHF',rulesSub:'Read. Ignored. Obeyed.',
  r1:'Sideways is forward.',r1b:'If you drive straight, you never understood the wheel.',r2:'Tyres are consumables.',r2b:'Like hearts. Bought, burned, bought again.',
  r3:'Destroy to rebuild.',r3b:'Break it, build it, keep driving. Doesn’t have to be pretty, has to run.',r4:'Closed tracks only.',r4b:'Track days, events, private ground. The street isn’t yours.',
  igEye:'Clips, meets, next drops',igH:'Follow the smoke',igBtn:'Open on Instagram',copy:'© 2026 Nokturn · Switzerland',legal:'Imprint · Terms · Privacy',
- close:'Close',checkout:'Checkout',note:'Checkout isn’t connected yet. Shopify, Stripe or Twint goes here.',
+ close:'Close',checkout:'Checkout',note:'Checkout isn’t connected yet. Until then, everything is on <a href="https://www.etsy.com/shop/NOKTURNofficial" target="_blank" rel="noopener">Etsy</a>.',
  add:'Add to cart',added:'Added '+SG,empty:'Still empty. Like the tank after the event.',variant:'Variant',less:'Less',more:'More',new:'New',low:'Low stock',
- hood:'Heavyweight 450 g/m², boxy fit, sigil print on the back.',tee:'Acid washed black, oversized. Small logo front, big on the back.',key:'Die-cast zinc, high-gloss chrome. Made for the ignition.',
- decal:'30 cm, plotted vinyl. Rear window or windshield banner.',beanie:'Rib knit with pom-pom, embroidered sigils.',fresh:'Wheel-shaped. Smells like cherry and burnt rubber.',
- 'One size':'One size',White:'White',Pink:'Pink',Chrome:'Chrome','3-pack':'3-pack'},
+ plugH:'Roll around on the floor and check your oil level, no problem. Vintage-style oversized tee, 100% cotton.',
+ plugS:'For drinking beers on a terrace. Boxy tee, 100% combed cotton.',goth:'Only for the handsome guys. Vintage-style oversized tee, 100% cotton.',
+ t13b:'Nostalgiacore midnight club. Boxy tee, 100% combed cotton.',rotary:'For people with psychological problems. Boxy tee, 100% cotton.',
+ hot:'Popular',etsy:'View on Etsy ↗'},
 fr:{cart:'Panier',eye:SG+' Night Drift Club · Né sur le parking',tag:'Pas de grip. Pas de plan. <em>Que de la fumée</em> et du chrome à 3 h du matin.',toDrop:'Voir le drop',
- dropSub:'Édition limitée · Livraison CH/UE · Prix en CHF',rulesSub:'Lues. Ignorées. Respectées.',
+ dropSub:'Fabriqué à la commande · Prix en CHF',rulesSub:'Lues. Ignorées. Respectées.',
  r1:'De travers, c’est tout droit.',r1b:'Qui roule droit n’a jamais compris le volant.',r2:'Les pneus, c’est du consommable.',r2b:'Comme les cœurs. Achetés, brûlés, rachetés.',
  r3:'Destroy to rebuild.',r3b:'Casser, reconstruire, repartir. Pas besoin d’être belle, faut qu’elle roule.',r4:'Uniquement sur circuit fermé.',r4b:'Track days, events, terrain privé. La route ne t’appartient pas.',
  igEye:'Clips, meets, prochains drops',igH:'Suis la fumée',igBtn:'Ouvrir sur Instagram',copy:'© 2026 Nokturn · Suisse',legal:'Mentions légales · CGV · Confidentialité',
- close:'Fermer',checkout:'Passer à la caisse',note:'La caisse n’est pas encore connectée. Shopify, Stripe ou Twint viendront ici.',
+ close:'Fermer',checkout:'Passer à la caisse',note:'La caisse n’est pas encore connectée. En attendant, tout est sur <a href="https://www.etsy.com/shop/NOKTURNofficial" target="_blank" rel="noopener">Etsy</a>.',
  add:'Ajouter',added:'Ajouté '+SG,empty:'Encore vide. Comme le réservoir après l’event.',variant:'Variante',less:'Moins',more:'Plus',new:'Nouveau',low:'Presque épuisé',
- hood:'Heavyweight 450 g/m², coupe boxy, sigil imprimé dans le dos.',tee:'Noir acid wash, oversize. Petit logo devant, grand dans le dos.',key:'Zinc moulé, chromé brillant. Pour la clé de contact.',
- decal:'30 cm, vinyle découpé. Lunette arrière ou bandeau de pare-brise.',beanie:'Maille côtelée avec pompon, sigils brodés.',fresh:'En forme de jante. Odeur cerise et gomme brûlée.',
- 'One size':'Taille unique',White:'Blanc',Pink:'Rose',Chrome:'Chrome','3-pack':'Lot de 3'}
+ plugH:'Avec lui, tu peux te rouler par terre et vérifier ton niveau d’huile sans souci. T-shirt oversize style vintage, 100 % coton.',
+ plugS:'Pour boire des bières en terrasse. T-shirt boxy, 100 % coton peigné.',goth:'Réservé aux beaux gosses. T-shirt oversize style vintage, 100 % coton.',
+ t13b:'Nostalgiacore midnight club. T-shirt boxy, 100 % coton peigné.',rotary:'Pour les gens avec des problèmes psychologiques. T-shirt boxy, 100 % coton.',
+ hot:'Populaire',etsy:'Voir sur Etsy ↗'}
 };
 let lang='de';
 try{const sv=localStorage.getItem('nkt-lang');if(T[sv])lang=sv;else{const nl=(navigator.language||'').slice(0,2);if(T[nl])lang=nl}}catch(e){}
 const t=k=>T[lang][k]??k;
+// Mock-Daten aus dem Etsy-Shop NOKTURNofficial, Bilder direkt vom Etsy-CDN
+const ETSY='https://www.etsy.com/listing/', IMG='https://i.etsystatic.com/68370654/r/il/';
 const P=[
-  {id:'hood',n:'Sideways Hoodie',p:89,a:'hoodie',s:['S','M','L','XL'],b:'new'},
-  {id:'tee',n:'Nokturn Tee',p:40,a:'tee',s:['S','M','L','XL']},
-  {id:'key',n:'Chrome Sigil Keychain',p:25,a:'sigil',s:['One size']},
-  {id:'decal',n:'Drift Tax Decal',p:12,a:'decal',s:['White','Pink','Chrome']},
-  {id:'beanie',n:'Burnout Beanie',p:35,a:'beanie',s:['One size'],b:'low'},
-  {id:'fresh',n:'Cherry Smoke Freshener',p:8,a:'fresh',s:['3-pack']}
+  {id:'plugH',n:'Sparkplugs hard',p:40,img:IMG+'d5ab81/8716757734/il_794xN.8716757734_1imi.jpg',url:ETSY+'4600164150/sparkplugs-hard',s:['S','M','L','XL','2XL']},
+  {id:'plugS',n:'Sparkplugs soft',p:40,img:IMG+'1ebce7/8764576009/il_794xN.8764576009_fmmi.jpg',url:ETSY+'4600139239/sparkplugs-soft',s:['S','M','L','XL','2XL']},
+  {id:'goth',n:'NOKTURN GOTH',p:40,img:IMG+'5b0ecc/8764535749/il_794xN.8764535749_pysi.jpg',url:ETSY+'4600158150/nokturn-goth',s:['S','M','L','XL','2XL']},
+  {id:'t13b',n:'13B TURBO Nostalgiacore',p:40,img:IMG+'c86b89/8764515391/il_794xN.8764515391_99by.jpg',url:ETSY+'4600131619/13b-turbo-nostalgiacore',s:['XS','S','M','L','XL','2XL'],b:'hot'},
+  {id:'rotary',n:'rotary',p:40,img:IMG+'9fd68f/8764136111/il_794xN.8764136111_48zz.jpg',url:ETSY+'4600085023/rotary',s:['XS','S','M','L','XL','2XL']}
 ];
 const fmt=v=>'CHF '+v.toFixed(2);
 const $=id=>document.getElementById(id);
@@ -316,11 +319,13 @@ function renderGrid(){
     <div class="art">
       <span class="no">NKT-${String(i+1).padStart(3,'0')}</span>
       ${x.b?`<span class="badge">${t(x.b)}</span>`:''}
-      <svg viewBox="0 0 100 100" fill="none" stroke="var(--chrome)" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">${ART[x.a]}</svg>
+      <svg viewBox="0 0 100 100" fill="none" stroke="var(--chrome)" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">${ART.tee}</svg>
+      <img src="${x.img}" alt="${x.n}" loading="lazy" onerror="this.remove()">
     </div>
     <div class="body">
       <h3>${x.n}</h3>
       <p>${t(x.id)}</p>
+      <a class="etsy" href="${x.url}" target="_blank" rel="noopener">${t('etsy')}</a>
       <div class="row">
         <span class="price">${fmt(x.p)}</span>
         <select id="sz-${x.id}" aria-label="${t('variant')} ${x.n}">${x.s.map(v=>`<option value="${v}"${keep['sz-'+x.id]===v?' selected':''}>${t(v)}</option>`).join('')}</select>
