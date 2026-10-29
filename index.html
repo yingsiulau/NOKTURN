@@ -99,8 +99,13 @@ h2{font-family:var(--f-bio);font-weight:400;text-transform:uppercase;letter-spac
 .item{background:var(--soot);border:1px solid var(--scar);display:flex;flex-direction:column;min-width:0;position:relative}
 .item:nth-child(3n+2){transform:rotate(.6deg)} .item:nth-child(3n){transform:rotate(-.5deg)}
 .art{aspect-ratio:1/1;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#221c22,var(--soot) 70%);border-bottom:1px solid var(--scar);position:relative;overflow:hidden}
-.art svg{width:56%;height:auto;overflow:visible}
 .art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.gal{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;background:rgba(7,6,8,.6);border:1px solid var(--scar);color:var(--chrome);font:20px/1 var(--f-data);cursor:pointer}
+.gal.prev{left:8px}.gal.next{right:8px}
+.gal:hover{background:var(--peep);border-color:var(--peep);color:var(--ink)}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:8px;z-index:2}
+.dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--chrome);background:transparent;padding:0;cursor:pointer}
+.dot[aria-pressed="true"]{background:var(--peep);border-color:var(--peep)}
 .etsy{font-family:var(--f-data);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--peep);text-decoration:none;align-self:flex-start}
 .etsy:hover{text-decoration:underline}
 .note a{color:inherit}
@@ -259,9 +264,6 @@ const SG='<i class="sg" aria-hidden="true"></i>';
 })();
 
 /* ---------- products ---------- */
-const ART={
-  tee:'<path d="M30 15 42 12Q50 20 58 12L70 15 88 30 80 42 72 37 72 90 28 90 28 37 20 42 12 30Z"/><text x="50" y="58" text-anchor="middle" font-family="Pirata One" font-size="13" fill="var(--peep)" stroke="none">NKT</text>'
-};
 const T={
 de:{cart:'Cart',eye:SG+' Night Drift Club · Est. auf dem Parkplatz',tag:'Kein Grip. Kein Plan. <em>Nur Rauch</em> und Chrome um 3 Uhr nachts.',toDrop:'Zum Drop',
  dropSub:'Auf Bestellung gefertigt · Preise in CHF',rulesSub:'Gelesen. Ignoriert. Befolgt.',
@@ -273,7 +275,7 @@ de:{cart:'Cart',eye:SG+' Night Drift Club · Est. auf dem Parkplatz',tag:'Kein G
  plugH:'Damit kannst du dich auf dem Boden wälzen und problemlos den Ölstand checken. Oversized Tee im Vintage-Look, 100 % Baumwolle.',
  plugS:'Zum Bier trinken auf der Terrasse. Boxy Tee, 100 % gekämmte Baumwolle.',goth:'Nur für die Hübschen. Oversized Tee im Vintage-Look, 100 % Baumwolle.',
  t13b:'Nostalgiacore Midnight Club. Boxy Tee, 100 % gekämmte Baumwolle.',rotary:'Für Leute mit psychischen Problemen. Boxy Tee, 100 % Baumwolle.',
- hot:'Beliebt',etsy:'Auf Etsy ansehen ↗'},
+ hot:'Beliebt',prevImg:'Vorheriges Bild',nextImg:'Nächstes Bild',pic:'Bild',etsy:'Auf Etsy ansehen ↗'},
 en:{cart:'Cart',eye:SG+' Night Drift Club · Est. in the parking lot',tag:'No grip. No plan. <em>Just smoke</em> and chrome at 3 a.m.',toDrop:'Shop the drop',
  dropSub:'Made to order · Prices in CHF',rulesSub:'Read. Ignored. Obeyed.',
  r1:'Sideways is forward.',r1b:'If you drive straight, you never understood the wheel.',r2:'Tyres are consumables.',r2b:'Like hearts. Bought, burned, bought again.',
@@ -284,7 +286,7 @@ en:{cart:'Cart',eye:SG+' Night Drift Club · Est. in the parking lot',tag:'No gr
  plugH:'Roll around on the floor and check your oil level, no problem. Vintage-style oversized tee, 100% cotton.',
  plugS:'For drinking beers on a terrace. Boxy tee, 100% combed cotton.',goth:'Only for the handsome guys. Vintage-style oversized tee, 100% cotton.',
  t13b:'Nostalgiacore midnight club. Boxy tee, 100% combed cotton.',rotary:'For people with psychological problems. Boxy tee, 100% cotton.',
- hot:'Popular',etsy:'View on Etsy ↗'},
+ hot:'Popular',prevImg:'Previous image',nextImg:'Next image',pic:'Image',etsy:'View on Etsy ↗'},
 fr:{cart:'Panier',eye:SG+' Night Drift Club · Né sur le parking',tag:'Pas de grip. Pas de plan. <em>Que de la fumée</em> et du chrome à 3 h du matin.',toDrop:'Voir le drop',
  dropSub:'Fabriqué à la commande · Prix en CHF',rulesSub:'Lues. Ignorées. Respectées.',
  r1:'De travers, c’est tout droit.',r1b:'Qui roule droit n’a jamais compris le volant.',r2:'Les pneus, c’est du consommable.',r2b:'Comme les cœurs. Achetés, brûlés, rachetés.',
@@ -295,32 +297,51 @@ fr:{cart:'Panier',eye:SG+' Night Drift Club · Né sur le parking',tag:'Pas de g
  plugH:'Avec lui, tu peux te rouler par terre et vérifier ton niveau d’huile sans souci. T-shirt oversize style vintage, 100 % coton.',
  plugS:'Pour boire des bières en terrasse. T-shirt boxy, 100 % coton peigné.',goth:'Réservé aux beaux gosses. T-shirt oversize style vintage, 100 % coton.',
  t13b:'Nostalgiacore midnight club. T-shirt boxy, 100 % coton peigné.',rotary:'Pour les gens avec des problèmes psychologiques. T-shirt boxy, 100 % coton.',
- hot:'Populaire',etsy:'Voir sur Etsy ↗'}
+ hot:'Populaire',prevImg:'Image précédente',nextImg:'Image suivante',pic:'Image',etsy:'Voir sur Etsy ↗'}
 };
 let lang='de';
 try{const sv=localStorage.getItem('nkt-lang');if(T[sv])lang=sv;else{const nl=(navigator.language||'').slice(0,2);if(T[nl])lang=nl}}catch(e){}
 const t=k=>T[lang][k]??k;
-// Mock-Daten aus dem Etsy-Shop NOKTURNofficial, Bilder direkt vom Etsy-CDN
-const ETSY='https://www.etsy.com/listing/', IMG='https://i.etsystatic.com/68370654/r/il/';
+// Mock-Daten aus dem Etsy-Shop NOKTURNofficial; Fotos von Etsy, freigestellt in img/ (Reihenfolge wie auf Etsy)
+const ETSY='https://www.etsy.com/listing/', pics=id=>[1,2].map(k=>`img/${id}-${k}.webp`);
 const P=[
-  {id:'plugH',n:'Sparkplugs hard',p:40,img:IMG+'d5ab81/8716757734/il_794xN.8716757734_1imi.jpg',url:ETSY+'4600164150/sparkplugs-hard',s:['S','M','L','XL','2XL']},
-  {id:'plugS',n:'Sparkplugs soft',p:40,img:IMG+'1ebce7/8764576009/il_794xN.8764576009_fmmi.jpg',url:ETSY+'4600139239/sparkplugs-soft',s:['S','M','L','XL','2XL']},
-  {id:'goth',n:'NOKTURN GOTH',p:40,img:IMG+'5b0ecc/8764535749/il_794xN.8764535749_pysi.jpg',url:ETSY+'4600158150/nokturn-goth',s:['S','M','L','XL','2XL']},
-  {id:'t13b',n:'13B TURBO Nostalgiacore',p:40,img:IMG+'c86b89/8764515391/il_794xN.8764515391_99by.jpg',url:ETSY+'4600131619/13b-turbo-nostalgiacore',s:['XS','S','M','L','XL','2XL'],b:'hot'},
-  {id:'rotary',n:'rotary',p:40,img:IMG+'9fd68f/8764136111/il_794xN.8764136111_48zz.jpg',url:ETSY+'4600085023/rotary',s:['XS','S','M','L','XL','2XL']}
+  {id:'plugH',imgs:pics('plugH'),n:'Sparkplugs hard',p:40,url:ETSY+'4600164150/sparkplugs-hard',s:['S','M','L','XL','2XL']},
+  {id:'plugS',imgs:pics('plugS'),n:'Sparkplugs soft',p:40,url:ETSY+'4600139239/sparkplugs-soft',s:['S','M','L','XL','2XL']},
+  {id:'goth',imgs:pics('goth'),n:'NOKTURN GOTH',p:40,url:ETSY+'4600158150/nokturn-goth',s:['S','M','L','XL','2XL']},
+  {id:'t13b',imgs:pics('t13b'),n:'13B TURBO Nostalgiacore',p:40,url:ETSY+'4600131619/13b-turbo-nostalgiacore',s:['XS','S','M','L','XL','2XL'],b:'hot'},
+  {id:'rotary',imgs:pics('rotary'),n:'rotary',p:40,url:ETSY+'4600085023/rotary',s:['XS','S','M','L','XL','2XL']}
 ];
 const fmt=v=>'CHF '+v.toFixed(2);
 const $=id=>document.getElementById(id);
 const grid=$('grid');
+const G={};
+function showPic(id,k){
+  const x=P.find(p=>p.id===id), n=x.imgs.length, art=grid.querySelector(`.art[data-id="${id}"]`);
+  G[id]=(k+n)%n;
+  art.querySelectorAll('img').forEach((im,j)=>im.hidden=j!==G[id]);
+  art.querySelectorAll('.dot').forEach((d,j)=>d.setAttribute('aria-pressed',j===G[id]));
+}
+grid.addEventListener('click',e=>{
+  const b=e.target.closest('.gal,.dot'); if(!b) return;
+  const id=b.dataset.id;
+  showPic(id,b.dataset.k!=null?+b.dataset.k:(G[id]||0)+ +b.dataset.d);
+});
+let sx=null;
+grid.addEventListener('touchstart',e=>{sx=e.target.closest('.art')?e.touches[0].clientX:null},{passive:true});
+grid.addEventListener('touchend',e=>{
+  if(sx==null) return; const dx=e.changedTouches[0].clientX-sx, art=e.target.closest('.art'); sx=null;
+  if(art&&Math.abs(dx)>40) showPic(art.dataset.id,(G[art.dataset.id]||0)+(dx<0?1:-1));
+});
 function renderGrid(){
   const keep={};grid.querySelectorAll('select').forEach(x=>keep[x.id]=x.value);
   grid.innerHTML=P.map((x,i)=>`
   <article class="item">
-    <div class="art">
+    <div class="art" data-id="${x.id}">
       <span class="no">NKT-${String(i+1).padStart(3,'0')}</span>
       ${x.b?`<span class="badge">${t(x.b)}</span>`:''}
-      <svg viewBox="0 0 100 100" fill="none" stroke="var(--chrome)" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">${ART.tee}</svg>
-      <img src="${x.img}" alt="${x.n}" loading="lazy" onerror="this.remove()">
+      ${x.imgs.map((src,k)=>`<img src="${src}" alt="${x.n}, ${t('pic')} ${k+1}" loading="lazy" onerror="this.remove()"${k===(G[x.id]||0)?'':' hidden'}>`).join('')}
+      ${x.imgs.length>1?`<button class="gal prev" data-id="${x.id}" data-d="-1" type="button" aria-label="${t('prevImg')}">‹</button><button class="gal next" data-id="${x.id}" data-d="1" type="button" aria-label="${t('nextImg')}">›</button>
+      <div class="dots">${x.imgs.map((_,k)=>`<button class="dot" data-id="${x.id}" data-k="${k}" type="button" aria-label="${t('pic')} ${k+1}" aria-pressed="${k===(G[x.id]||0)}"></button>`).join('')}</div>`:''}
     </div>
     <div class="body">
       <h3>${x.n}</h3>
